@@ -19,6 +19,8 @@ export type GammaMarketRaw = {
   question: string;
   conditionId: string;
   slug: string;
+  /** Short per-market label for multi-market events, e.g. "Gavin Newsom" */
+  groupItemTitle?: string;
   endDate?: string;
   /** JSON-stringified string[] — e.g. '["Yes","No"]' */
   outcomes: string;
@@ -68,6 +70,8 @@ export type Market = {
   id: string;
   question: string;
   slug: string;
+  /** Short label used when this market is one row in a multi-market event card. */
+  groupItemTitle?: string;
   endDate?: string;
   outcomes: Outcome[];
   volume: number;
@@ -125,6 +129,7 @@ export function parseMarket(raw: GammaMarketRaw): Market {
     id: raw.id,
     question: raw.question,
     slug: raw.slug,
+    groupItemTitle: raw.groupItemTitle,
     endDate: raw.endDate,
     outcomes,
     volume: parseNumber(raw.volume),

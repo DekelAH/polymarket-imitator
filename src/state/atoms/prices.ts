@@ -9,5 +9,5 @@ export type PriceMeta = {
     ts: number
 }
 
-export const priceAtomFamily = atomFamily((tokenId: string) => atom(0))
-export const priceMetaAtomFamily = atomFamily((tokenId: string) => atom<PriceMeta>({ prev: 0, current: 0, direction: 'flat', ts: 0 }))
+export const priceAtomFamily = atomFamily(() => atom(0))
+export const priceMetaAtomFamily = atomFamily(() => atom<PriceMeta>({ prev: 0, current: 0, direction: 'flat', ts: 0 }))
