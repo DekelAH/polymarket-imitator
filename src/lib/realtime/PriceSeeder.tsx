@@ -39,8 +39,8 @@ export function PriceSeeder({ initialPrices }: { initialPrices: InitialPrice[] }
       unsubscribe();
       feed.stop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentional: seeding runs once on mount with the server-provided snapshot
+  
+  }, []); 
 
   return null;
 }

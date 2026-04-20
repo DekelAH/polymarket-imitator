@@ -2,8 +2,10 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import { useAtomValue } from "jotai";
 import type { PolyEvent, Market, Outcome } from "@/types/polymarket";
 import { PriceCell } from "../market/PriceCell";
+import { priceAtomFamily } from "@/state/atoms/prices";
 
 type EventCardProps = {
   event: PolyEvent;
@@ -28,19 +30,61 @@ function yesOutcome(m: Market): Outcome | null {
   return yes?.tokenId ? yes : null;
 }
 
-function YesNoButtons() {
+function noOutcome(m: Market): Outcome | null {
+  if (m.outcomes.length !== 2) return null;
+  const no = m.outcomes.find((o) => o.name.toLowerCase() === "no") ?? m.outcomes[1];
+  return no?.tokenId ? no : null;
+}
+
+/** Multi-market only: compact pills; live % only when hovering that pill (named group avoids outer Link `group`). */
+function YesPill({ tokenId }: { tokenId: string }) {
+  const price = useAtomValue(priceAtomFamily(tokenId));
+  return (
+    <span className="group/pill relative w-[40px] h-[27px] shrink-0 text-xs font-medium rounded bg-[#1a472a] text-[#4ade80] inline-flex items-center justify-center box-border transition-colors duration-150 hover:bg-[#15803d] hover:text-[#bbf7d0]">
+      <span className="group-hover/pill:hidden">Yes</span>
+      <span className="hidden group-hover/pill:inline tabular-nums">{`${Math.round(price * 100)}%`}</span>
+    </span>
+  );
+}
+
+function NoPill({ tokenId }: { tokenId: string }) {
+  const price = useAtomValue(priceAtomFamily(tokenId));
+  return (
+    <span className="group/pill relative w-[40px] h-[27px] shrink-0 text-xs font-medium rounded bg-[#4a1a1a] text-[#f87171] inline-flex items-center justify-center box-border transition-colors duration-150 hover:bg-[#b91c1c] hover:text-[#fecaca]">
+      <span className="group-hover/pill:hidden">No</span>
+      <span className="hidden group-hover/pill:inline tabular-nums">{`${Math.round(price * 100)}%`}</span>
+    </span>
+  );
+}
+
+function YesNoPillsMulti({ yesTokenId, noTokenId }: { yesTokenId: string; noTokenId: string }) {
   return (
     <div className="flex gap-1 shrink-0">
-      <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#1a472a] text-[#4ade80]">Yes</span>
-      <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#4a1a1a] text-[#f87171]">No</span>
+      <YesPill tokenId={yesTokenId} />
+      <NoPill tokenId={noTokenId} />
     </div>
   );
 }
 
-/** One row inside a multi-market card: "Gavin Newsom  27%  [Yes] [No]". */
-function MarketRow({ market }: { market: Market }) {
+/** Single-binary card: large buttons — card hover deepens bg; button hover brightens like multi-market pills. */
+function YesNoBigButtons() {
+  return (
+    <div className="flex gap-2">
+      <span className="flex-1 h-9 flex items-center justify-center rounded-md text-sm font-semibold bg-[#1a472a]/50 text-[#4ade80] transition-colors duration-150 group-hover/card:bg-[#1a472a] hover:bg-[#15803d] hover:text-[#bbf7d0]">
+        Yes
+      </span>
+      <span className="flex-1 h-9 flex items-center justify-center rounded-md text-sm font-semibold bg-[#4a1a1a]/50 text-[#f87171] transition-colors duration-150 group-hover/card:bg-[#4a1a1a] hover:bg-[#b91c1c] hover:text-[#fecaca]">
+        No
+      </span>
+    </div>
+  );
+}
+
+/** Multi-market row: outcome label, %, then hover pills. */
+function MarketRowMulti({ market }: { market: Market }) {
   const yes = yesOutcome(market);
-  if (!yes?.tokenId) return null;
+  const no = noOutcome(market);
+  if (!yes?.tokenId || !no?.tokenId) return null;
   return (
     <div className="flex items-center gap-2 py-1">
       <span className="text-sm text-foreground truncate flex-1 min-w-0">
@@ -49,7 +93,24 @@ function MarketRow({ market }: { market: Market }) {
       <span className="text-[15px] font-semibold">
         <PriceCell tokenId={yes.tokenId} format="percent" />
       </span>
-      <YesNoButtons />
+      <YesNoPillsMulti yesTokenId={yes.tokenId} noTokenId={no.tokenId} />
+    </div>
+  );
+}
+
+/** Single-binary card: leading chance + big Yes/No (no % on button hover). */
+function BinaryMarketBody({ market }: { market: Market }) {
+  const yes = yesOutcome(market);
+  if (!yes?.tokenId) return null;
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl font-semibold leading-none">
+          <PriceCell tokenId={yes.tokenId} format="percent" />
+        </span>
+        <span className="text-xs text-muted-foreground">chance</span>
+      </div>
+      <YesNoBigButtons />
     </div>
   );
 }
@@ -72,25 +133,22 @@ function EventCardImpl({ event }: EventCardProps) {
   const singleMarket = markets.length === 1 ? markets[0] : null;
   const singleBinary = singleMarket && yesOutcome(singleMarket);
 
-  // Case A: many markets (politics / elections / fed) — one row per market
-  // Case B: single binary market — one row with the market question
-  // Case C: single multi-outcome market (sports championship) — top outcomes of that market
   const rows: React.ReactNode = (() => {
     if (markets.length > 1) {
       const top = [...markets]
-        .filter((m) => yesOutcome(m))
+        .filter((m) => yesOutcome(m) && noOutcome(m))
         .sort((a, b) => (yesOutcome(b)?.price ?? 0) - (yesOutcome(a)?.price ?? 0))
         .slice(0, 2);
       return (
         <>
           {top.map((m) => (
-            <MarketRow key={m.id} market={m} />
+            <MarketRowMulti key={m.id} market={m} />
           ))}
         </>
       );
     }
     if (singleBinary) {
-      return <MarketRow market={singleMarket!} />;
+      return <BinaryMarketBody market={singleMarket!} />;
     }
     if (singleMarket) {
       const top = [...singleMarket.outcomes]
@@ -108,7 +166,7 @@ function EventCardImpl({ event }: EventCardProps) {
   })();
 
   return (
-    <Link href={`/events/${event.slug}`} className="block group">
+    <Link href={`/events/${event.slug}`} className="block group/card">
       <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 h-full transition-colors hover:border-border/80 hover:bg-card/80 cursor-pointer">
         <div className="flex items-center gap-2">
           {event.image || event.icon ? (

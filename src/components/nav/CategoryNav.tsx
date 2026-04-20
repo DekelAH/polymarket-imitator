@@ -14,7 +14,7 @@ export function CategoryNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-1 px-4 py-3 overflow-x-auto">
+    <nav className="flex items-center gap-1 py-3 overflow-x-auto">
       {CATEGORIES.map(({ label, href }) => {
         const active = pathname === href;
         return (
@@ -22,7 +22,7 @@ export function CategoryNav() {
             key={label}
             href={href}
             className={[
-              "px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+              "px-4 py-1.5 text-sm font-medium transition-colors outline-none",
               active
                 ? "text-foreground"
                 : "text-[#7B8996] hover:text-foreground",

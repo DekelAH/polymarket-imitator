@@ -16,9 +16,7 @@ export default async function HomePage() {
   return (
     <>
       <PriceSeeder initialPrices={initialPrices} />
-      <div className="max-w-screen-2xl mx-auto w-full">
-        <EventsGrid events={events} />
-      </div>
+      <EventsGrid events={events} />
     </>
   );
 }

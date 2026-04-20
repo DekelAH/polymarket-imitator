@@ -36,20 +36,20 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>
         <Providers>
           <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b border-border">
-            <div className="max-w-screen-2xl mx-auto">
-              <div className="flex items-center gap-3 pt-3 pr-6 pb-2 pl-6">
+            <div className="mx-4 sm:mx-6 md:mx-10 lg:mx-16 xl:mx-20 2xl:mx-[130px]">
+              <div className="flex items-center gap-3 pt-3 pb-2">
                 <Link
                   href="/"
                   aria-label="Polymarket"
-                  className="inline-flex items-center justify-center w-[160px] h-[40px] text-white hover:opacity-80 transition-opacity"
+                  className="inline-flex items-center justify-center h-[40px] text-white hover:opacity-80 transition-opacity w-[120px] sm:w-[160px]"
                 >
-                  <Logo className="w-[160px] h-[26px]" />
+                  <Logo className="w-full h-[26px]" />
                 </Link>
               </div>
               <CategoryNav />
             </div>
           </header>
-          <main className="flex-1">
+          <main className="flex-1 mx-4 sm:mx-6 md:mx-10 lg:mx-16 xl:mx-20 2xl:mx-[130px]">
             {children}
           </main>
         </Providers>

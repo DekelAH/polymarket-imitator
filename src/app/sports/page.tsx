@@ -16,15 +16,13 @@ export default async function SportsPage() {
   return (
     <>
       <PriceSeeder initialPrices={initialPrices} />
-      <div className="max-w-screen-2xl mx-auto w-full">
-        <div className="px-4 pt-5 pb-2">
-          <h1 className="text-lg font-semibold">Sports</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Prediction markets on match outcomes, championships, and player performance.
-          </p>
-        </div>
-        <EventsGrid events={events} />
+      <div className="pt-5 pb-2">
+        <h1 className="text-lg font-semibold">Sports</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Prediction markets on match outcomes, championships, and player performance.
+        </p>
       </div>
+      <EventsGrid events={events} />
     </>
   );
 }
