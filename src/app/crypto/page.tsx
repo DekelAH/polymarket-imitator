@@ -1,7 +1,6 @@
 import { fetchEvents } from "@/lib/api/gamma";
 import { PriceSeeder } from "@/lib/realtime/PriceSeeder";
 import { EventsGrid } from "@/components/events/EventsGrid";
-import { CryptoRibbon } from "@/components/nav/CryptoRibbon";
 
 export default async function CryptoPage() {
   const events = await fetchEvents({ tagSlug: "crypto", limit: 48 });
